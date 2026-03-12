@@ -1,76 +1,52 @@
-export default async function handler(req, res) {
+const input = document.getElementById("messageInput")
+const messagesDiv = document.getElementById("messages")
 
-if (req.method !== "POST") {
-return res.status(405).json({ error: "Method not allowed" })
-}
+async function sendMessage(){
 
-try {
+const text = input.value.trim()
 
-const body = req.body || {}
+if(!text) return
 
-let messages = body.messages || []
+messagesDiv.innerHTML += `<div class="message user">${text}</div>`
 
-// ensure messages is an array
-if (!Array.isArray(messages)) {
-messages = []
-}
+input.value=""
 
-// sanitize every message
-const safeMessages = messages
-.filter(m => m && typeof m === "object")
-.map(m => ({
-role: m.role === "assistant" ? "assistant" : m.role === "system" ? "system" : "user",
-content: typeof m.content === "string" ? m.content.trim() : ""
-}))
-.filter(m => m.content.length > 0)
+const thinking = document.createElement("div")
+thinking.className="message bot"
+thinking.innerText="Thinking..."
+messagesDiv.appendChild(thinking)
 
-// always ensure a system prompt exists
-if (!safeMessages.find(m => m.role === "system")) {
-safeMessages.unshift({
-role: "system",
-content: "You are 20AI, a helpful assistant for entrepreneurs, developers and businesses."
-})
-}
+messagesDiv.scrollTop = messagesDiv.scrollHeight
 
-// if user somehow sends nothing
-if (safeMessages.length === 1) {
-safeMessages.push({
-role: "user",
-content: "Hello"
-})
-}
+try{
 
-const response = await fetch("https://api.openai.com/v1/chat/completions", {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-"Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+const res = await fetch("/api/chat",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
 },
-body: JSON.stringify({
-model: "gpt-4o-mini",
-messages: safeMessages,
-temperature: 0.7
+body:JSON.stringify({
+message:text
 })
 })
 
-const data = await response.json()
+const data = await res.json()
 
-if (!response.ok) {
-return res.status(500).json({
-reply: "OpenAI error: " + JSON.stringify(data)
-})
-}
+thinking.innerText = data.reply || "No response"
 
-return res.status(200).json({
-reply: data?.choices?.[0]?.message?.content || "No response"
-})
+}catch(err){
 
-} catch (error) {
-
-return res.status(500).json({
-reply: "Server error: " + error.message
-})
+thinking.innerText="Server error"
 
 }
 
 }
+
+input.addEventListener("keydown",function(e){
+
+if(e.key==="Enter" && !e.shiftKey){
+e.preventDefault()
+sendMessage()
+}
+
+})
