@@ -7,8 +7,6 @@
 
 <title>20AI</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 
 body{
@@ -42,22 +40,6 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 margin-bottom:20px;
-}
-
-.chat-list{
-flex:1;
-overflow-y:auto;
-}
-
-.chat-item{
-padding:8px;
-border-radius:6px;
-cursor:pointer;
-margin-bottom:6px;
-}
-
-.chat-item:hover{
-background:#1e293b;
 }
 
 /* MAIN */
@@ -95,7 +77,7 @@ color:black;
 align-self:flex-end;
 }
 
-.assistant{
+.bot{
 background:#1e293b;
 }
 
@@ -138,13 +120,13 @@ cursor:pointer;
 
 <button class="new-chat" onclick="newChat()">New Chat</button>
 
-<div class="chat-list" id="chatList"></div>
-
 </div>
 
 <div class="main">
 
-<div class="topbar">Malcolm</div>
+<div class="topbar">
+20AI Assistant
+</div>
 
 <div class="messages" id="messages"></div>
 
@@ -158,155 +140,7 @@ cursor:pointer;
 
 </div>
 
-<script>
-
-const supabase = supabase.createClient(
-"https://supabase.com/dashboard/project/cyudprlnxebosgucgedwL",
-"sb_publishable_S6PGlU0wDdu0xqYRJAVDiQ_6_buPlwK"
-)
-
-const input = document.getElementById("messageInput")
-const sendBtn = document.getElementById("sendBtn")
-const messages = document.getElementById("messages")
-const chatList = document.getElementById("chatList")
-
-let currentChat = null
-
-/* LOAD CHATS */
-
-async function loadChats(){
-
-const { data } = await supabase
-.from("chats")
-.select("*")
-.order("created_at",{ascending:false})
-
-chatList.innerHTML=""
-
-data.forEach(chat => {
-
-const item=document.createElement("div")
-item.className="chat-item"
-item.innerText=chat.title
-
-item.onclick=()=>{
-currentChat=chat.id
-loadMessages(chat.id)
-}
-
-chatList.appendChild(item)
-
-})
-
-}
-
-/* LOAD MESSAGES */
-
-async function loadMessages(chatId){
-
-const { data } = await supabase
-.from("messages")
-.select("*")
-.eq("chat_id",chatId)
-.order("created_at")
-
-messages.innerHTML=""
-
-data.forEach(m => {
-
-messages.innerHTML+=`
-<div class="message ${m.role}">
-${m.content}
-</div>
-`
-
-})
-
-messages.scrollTop=messages.scrollHeight
-
-}
-
-/* CREATE NEW CHAT */
-
-async function newChat(){
-
-const { data } = await supabase
-.from("chats")
-.insert([{title:"New Chat"}])
-.select()
-
-currentChat=data[0].id
-
-loadChats()
-loadMessages(currentChat)
-
-}
-
-/* SEND MESSAGE */
-
-async function sendMessage(){
-
-const text=input.value.trim()
-
-if(!text) return
-
-if(!currentChat) await newChat()
-
-messages.innerHTML+=`<div class="message user">${text}</div>`
-
-input.value=""
-
-const thinking=document.createElement("div")
-thinking.className="message assistant"
-thinking.innerText="Thinking..."
-messages.appendChild(thinking)
-
-messages.scrollTop=messages.scrollHeight
-
-await supabase.from("messages").insert({
-chat_id:currentChat,
-role:"user",
-content:text
-})
-
-const response=await fetch("/api/chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({message:text})
-})
-
-const data=await response.json()
-
-thinking.innerText=data.reply
-
-await supabase.from("messages").insert({
-chat_id:currentChat,
-role:"assistant",
-content:data.reply
-})
-
-}
-
-/* BUTTON */
-
-sendBtn.addEventListener("click",sendMessage)
-
-/* ENTER */
-
-input.addEventListener("keydown",function(e){
-
-if(e.key==="Enter" && !e.shiftKey){
-e.preventDefault()
-sendMessage()
-}
-
-})
-
-loadChats()
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
