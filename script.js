@@ -6,26 +6,37 @@ return res.status(405).json({ error: "Method not allowed" })
 
 try {
 
-const { messages } = req.body
+const body = req.body || {}
 
-// ensure messages exist
-if (!messages || !Array.isArray(messages)) {
-return res.status(400).json({ reply: "Invalid message format" })
+let messages = body.messages || []
+
+// ensure messages is an array
+if (!Array.isArray(messages)) {
+messages = []
 }
 
-// remove invalid messages
-const cleanMessages = messages
-.filter(m => m && typeof m.content === "string" && m.content.trim() !== "")
+// sanitize every message
+const safeMessages = messages
+.filter(m => m && typeof m === "object")
 .map(m => ({
-role: m.role,
-content: m.content.trim()
+role: m.role === "assistant" ? "assistant" : m.role === "system" ? "system" : "user",
+content: typeof m.content === "string" ? m.content.trim() : ""
 }))
+.filter(m => m.content.length > 0)
 
-// ensure system prompt exists
-if (cleanMessages.length === 0) {
-cleanMessages.push({
+// always ensure a system prompt exists
+if (!safeMessages.find(m => m.role === "system")) {
+safeMessages.unshift({
 role: "system",
-content: "You are 20AI, an intelligent assistant helping entrepreneurs and developers."
+content: "You are 20AI, a helpful assistant for entrepreneurs, developers and businesses."
+})
+}
+
+// if user somehow sends nothing
+if (safeMessages.length === 1) {
+safeMessages.push({
+role: "user",
+content: "Hello"
 })
 }
 
@@ -37,7 +48,7 @@ headers: {
 },
 body: JSON.stringify({
 model: "gpt-4o-mini",
-messages: cleanMessages,
+messages: safeMessages,
 temperature: 0.7
 })
 })
@@ -51,7 +62,7 @@ reply: "OpenAI error: " + JSON.stringify(data)
 }
 
 return res.status(200).json({
-reply: data.choices?.[0]?.message?.content || "No response"
+reply: data?.choices?.[0]?.message?.content || "No response"
 })
 
 } catch (error) {
