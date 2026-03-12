@@ -1,119 +1,65 @@
-const input = document.getElementById("messageInput")
-const messages = document.getElementById("messages")
+export default async function handler(req, res) {
 
-/* conversation memory */
-let conversation = [
-{
-role: "system",
-content: "You are 20AI, an intelligent assistant that helps entrepreneurs, developers, and businesses."
+if (req.method !== "POST") {
+return res.status(405).json({ error: "Method not allowed" })
 }
-]
 
-async function sendMessage(){
+try {
 
-const text = input.value.trim()
+const { messages } = req.body
 
-if(!text) return
+// ensure messages exist
+if (!messages || !Array.isArray(messages)) {
+return res.status(400).json({ reply: "Invalid message format" })
+}
 
-/* show user message */
+// remove invalid messages
+const cleanMessages = messages
+.filter(m => m && typeof m.content === "string" && m.content.trim() !== "")
+.map(m => ({
+role: m.role,
+content: m.content.trim()
+}))
 
-messages.innerHTML += `
-<div class="message user">
-${text}
-</div>
-`
-
-input.value = ""
-
-/* thinking indicator */
-
-const thinking = document.createElement("div")
-thinking.className = "message bot"
-thinking.innerText = "Thinking..."
-messages.appendChild(thinking)
-
-messages.scrollTop = messages.scrollHeight
-
-/* add user message to memory */
-
-conversation.push({
-role: "user",
-content: text
+// ensure system prompt exists
+if (cleanMessages.length === 0) {
+cleanMessages.push({
+role: "system",
+content: "You are 20AI, an intelligent assistant helping entrepreneurs and developers."
 })
+}
 
-/* remove invalid messages */
-
-const cleanMessages = conversation.filter(
-m => m.content && typeof m.content === "string"
-)
-
-/* limit memory size */
-
-const limitedMessages = cleanMessages.slice(-20)
-
-try{
-
-const response = await fetch("/api/chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
+const response = await fetch("https://api.openai.com/v1/chat/completions", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
 },
-body:JSON.stringify({
-messages: limitedMessages
+body: JSON.stringify({
+model: "gpt-4o-mini",
+messages: cleanMessages,
+temperature: 0.7
 })
 })
 
 const data = await response.json()
 
-const reply = data.reply || "No response"
+if (!response.ok) {
+return res.status(500).json({
+reply: "OpenAI error: " + JSON.stringify(data)
+})
+}
 
-/* update thinking bubble */
-
-thinking.innerText = reply
-
-/* store AI reply */
-
-conversation.push({
-role: "assistant",
-content: reply
+return res.status(200).json({
+reply: data.choices?.[0]?.message?.content || "No response"
 })
 
-messages.scrollTop = messages.scrollHeight
+} catch (error) {
 
-}catch(error){
-
-thinking.innerText = "Server error"
-
-}
-
-}
-
-
-/* ENTER KEY SUPPORT */
-
-input.addEventListener("keydown", function(event){
-
-if(event.key === "Enter" && !event.shiftKey){
-
-event.preventDefault()
-sendMessage()
-
-}
-
+return res.status(500).json({
+reply: "Server error: " + error.message
 })
 
-
-/* NEW CHAT */
-
-function newChat(){
-
-messages.innerHTML = ""
-
-conversation = [
-{
-role:"system",
-content:"You are 20AI, an intelligent assistant helping entrepreneurs and developers."
 }
-]
 
 }
