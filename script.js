@@ -2,12 +2,16 @@ const input = document.getElementById("messageInput")
 const sendBtn = document.getElementById("sendBtn")
 const messages = document.getElementById("messages")
 
+const chatList = document.querySelector(".sidebar")
+
 let chats = JSON.parse(localStorage.getItem("chats")) || {}
 let currentChat = null
 
 function saveChats(){
 localStorage.setItem("chats", JSON.stringify(chats))
 }
+
+/* CREATE NEW CHAT */
 
 function newChat(){
 
@@ -20,12 +24,14 @@ messages:[]
 
 currentChat = id
 
-messages.innerHTML=""
-
 saveChats()
+
 renderChats()
+renderMessages()
 
 }
+
+/* SEND MESSAGE */
 
 async function sendMessage(){
 
@@ -85,37 +91,54 @@ thinking.innerText="Server error"
 
 }
 
+/* RENDER CHAT LIST */
+
 function renderChats(){
 
-const sidebar = document.querySelector(".sidebar")
-
-document.querySelectorAll(".chat-item").forEach(e => e.remove())
+document.querySelectorAll(".chat-item").forEach(el => el.remove())
 
 Object.keys(chats).forEach(id => {
 
 const item = document.createElement("div")
-item.className="chat-item"
+
+item.className = "chat-item"
+
 item.innerText = chats[id].title
 
 item.onclick = () => {
+currentChat = id
+renderMessages()
+}
 
-currentChat=id
+chatList.appendChild(item)
+
+})
+
+}
+
+/* RENDER MESSAGES */
+
+function renderMessages(){
 
 messages.innerHTML=""
 
-chats[id].messages.forEach(m=>{
+if(!currentChat) return
 
-messages.innerHTML += `<div class="message ${m.role}">${m.content}</div>`
+chats[currentChat].messages.forEach(m => {
+
+messages.innerHTML += `
+<div class="message ${m.role}">
+${m.content}
+</div>
+`
 
 })
 
-}
-
-sidebar.appendChild(item)
-
-})
+messages.scrollTop = messages.scrollHeight
 
 }
+
+/* EVENTS */
 
 sendBtn.addEventListener("click", sendMessage)
 
