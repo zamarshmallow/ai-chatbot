@@ -1,9 +1,4 @@
 const input = document.getElementById("messageInput")
-const messagesDiv = document.getElementById("messages")
-
-async function sendMessage(){
-
-if(const input = document.getElementById("messageInput")
 const sendBtn = document.getElementById("sendBtn")
 const messages = document.getElementById("messages")
 
