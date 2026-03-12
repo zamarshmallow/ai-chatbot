@@ -1,28 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>20AI Chatbot</title>
-<link rel="stylesheet" href="style.css">
-</head>
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
 
-<body>
+.container{
+width:420px;
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+}
 
-<div class="chat-container">
+#chat{
+height:300px;
+overflow-y:auto;
+margin-bottom:10px;
+}
 
-<h1>20AI Assistant</h1>
+.input-area{
+display:flex;
+gap:10px;
+}
 
-<div id="chat"></div>
+input{
+flex:1;
+padding:10px;
+border-radius:6px;
+border:none;
+}
 
-<div class="input-area">
-<input id="message" placeholder="Ask me anything..." />
-<button onclick="sendMessage()">Send</button>
-</div>
+button{
+padding:10px 15px;
+border:none;
+background:#38bdf8;
+border-radius:6px;
+cursor:pointer;
+}
 
-</div>
+.message{
+margin:8px 0;
+}
 
-<script src="script.js"></script>
+.user{
+color:#38bdf8;
+}
 
-</body>
-</html>
+.bot{
+color:#e2e8f0;
+}
