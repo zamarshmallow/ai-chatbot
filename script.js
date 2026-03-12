@@ -15,11 +15,11 @@ function newChat(){
 const id = Date.now().toString()
 
 chats[id] = {
-title:"New Chat",
-messages:[]
+title: "New Chat",
+messages: []
 }
 
-currentChat=id
+currentChat = id
 
 saveChats()
 renderChats()
@@ -29,7 +29,7 @@ renderMessages()
 
 async function sendMessage(){
 
-const text=input.value.trim()
+const text = input.value.trim()
 
 if(!text) return
 
@@ -37,23 +37,23 @@ if(!currentChat) newChat()
 
 messages.innerHTML += `<div class="message user">${text}</div>`
 
-input.value=""
+input.value = ""
 
-const thinking=document.createElement("div")
-thinking.className="message bot"
-thinking.innerText="Thinking..."
+const thinking = document.createElement("div")
+thinking.className = "message bot"
+thinking.innerText = "Thinking..."
 messages.appendChild(thinking)
 
-messages.scrollTop=messages.scrollHeight
+messages.scrollTop = messages.scrollHeight
 
 chats[currentChat].messages.push({
-role:"user",
-content:text
+role: "user",
+content: text
 })
 
 try{
 
-const response=await fetch("/api/chat",{
+const response = await fetch("/api/chat",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -61,17 +61,17 @@ headers:{
 body:JSON.stringify({message:text})
 })
 
-const data=await response.json()
+const data = await response.json()
 
-thinking.innerText=data.reply
+thinking.innerText = data.reply
 
 chats[currentChat].messages.push({
 role:"bot",
 content:data.reply
 })
 
-if(chats[currentChat].messages.length===1){
-chats[currentChat].title=text.slice(0,30)
+if(chats[currentChat].messages.length === 1){
+chats[currentChat].title = text.slice(0,30)
 }
 
 saveChats()
@@ -79,7 +79,7 @@ renderChats()
 
 }catch(err){
 
-thinking.innerText="Server error"
+thinking.innerText = "Server error"
 
 }
 
@@ -87,36 +87,36 @@ thinking.innerText="Server error"
 
 function renderChats(){
 
-chatList.innerHTML=""
+chatList.innerHTML = ""
 
-Object.keys(chats).forEach(id=>{
+Object.keys(chats).forEach(id => {
 
-const item=document.createElement("div")
-item.className="chat-item"
+const item = document.createElement("div")
+item.className = "chat-item"
 
-if(id===currentChat){
+if(id === currentChat){
 item.classList.add("active")
 }
 
-const title=document.createElement("span")
-title.innerText=chats[id].title
+const title = document.createElement("span")
+title.innerText = chats[id].title
 
-title.onclick=()=>{
-currentChat=id
+title.onclick = () => {
+currentChat = id
 renderChats()
 renderMessages()
 }
 
-const deleteBtn=document.createElement("span")
-deleteBtn.innerText="✕"
-deleteBtn.className="delete-chat"
+const deleteBtn = document.createElement("span")
+deleteBtn.innerText = "✕"
+deleteBtn.className = "delete-chat"
 
-deleteBtn.onclick=(e)=>{
+deleteBtn.onclick = (e)=>{
 e.stopPropagation()
 delete chats[id]
 saveChats()
 renderChats()
-messages.innerHTML=""
+messages.innerHTML = ""
 }
 
 item.appendChild(title)
@@ -130,13 +130,13 @@ chatList.appendChild(item)
 
 function renderMessages(){
 
-messages.innerHTML=""
+messages.innerHTML = ""
 
 if(!currentChat) return
 
-chats[currentChat].messages.forEach(m=>{
+chats[currentChat].messages.forEach(m => {
 
-messages.innerHTML+=`
+messages.innerHTML += `
 <div class="message ${m.role}">
 ${m.content}
 </div>
@@ -144,20 +144,18 @@ ${m.content}
 
 })
 
-messages.scrollTop=messages.scrollHeight
+messages.scrollTop = messages.scrollHeight
 
 }
 
-/* AUTO GROW INPUT */
-
-input.addEventListener("input",()=>{
+input.addEventListener("input", ()=>{
 input.style.height="auto"
 input.style.height=input.scrollHeight+"px"
 })
 
-sendBtn.addEventListener("click",sendMessage)
+sendBtn.addEventListener("click", sendMessage)
 
-input.addEventListener("keydown",function(e){
+input.addEventListener("keydown", function(e){
 
 if(e.key==="Enter" && !e.shiftKey){
 e.preventDefault()
