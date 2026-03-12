@@ -1,32 +1,14 @@
 const input = document.getElementById("messageInput")
 const sendBtn = document.getElementById("sendBtn")
 const messages = document.getElementById("messages")
-const sidebar = document.getElementById("sidebar")
-const toggleSidebar = document.getElementById("toggleSidebar")
+const chatList = document.getElementById("chatList")
 
 let chats = JSON.parse(localStorage.getItem("chats")) || {}
 let currentChat = null
 
-const chatList = document.getElementById("chatList")
-
 function saveChats(){
 localStorage.setItem("chats", JSON.stringify(chats))
 }
-
-/* SIDEBAR TOGGLE */
-
-toggleSidebar.onclick = () => {
-sidebar.classList.toggle("collapsed")
-}
-
-/* AUTO GROW INPUT */
-
-input.addEventListener("input", () => {
-input.style.height = "auto"
-input.style.height = input.scrollHeight + "px"
-})
-
-/* NEW CHAT */
 
 function newChat(){
 
@@ -45,27 +27,6 @@ renderMessages()
 
 }
 
-/* TYPING ANIMATION */
-
-function typeMessage(element,text){
-
-let i=0
-
-const interval=setInterval(()=>{
-
-element.innerText += text[i]
-i++
-
-if(i>=text.length){
-clearInterval(interval)
-}
-
-},15)
-
-}
-
-/* SEND MESSAGE */
-
 async function sendMessage(){
 
 const text=input.value.trim()
@@ -77,7 +38,6 @@ if(!currentChat) newChat()
 messages.innerHTML += `<div class="message user">${text}</div>`
 
 input.value=""
-input.style.height="auto"
 
 const thinking=document.createElement("div")
 thinking.className="message bot"
@@ -103,9 +63,7 @@ body:JSON.stringify({message:text})
 
 const data=await response.json()
 
-thinking.innerText=""
-
-typeMessage(thinking,data.reply)
+thinking.innerText=data.reply
 
 chats[currentChat].messages.push({
 role:"bot",
@@ -126,8 +84,6 @@ thinking.innerText="Server error"
 }
 
 }
-
-/* RENDER CHATS */
 
 function renderChats(){
 
@@ -172,8 +128,6 @@ chatList.appendChild(item)
 
 }
 
-/* RENDER MESSAGES */
-
 function renderMessages(){
 
 messages.innerHTML=""
@@ -190,9 +144,16 @@ ${m.content}
 
 })
 
+messages.scrollTop=messages.scrollHeight
+
 }
 
-/* EVENTS */
+/* AUTO GROW INPUT */
+
+input.addEventListener("input",()=>{
+input.style.height="auto"
+input.style.height=input.scrollHeight+"px"
+})
 
 sendBtn.addEventListener("click",sendMessage)
 
