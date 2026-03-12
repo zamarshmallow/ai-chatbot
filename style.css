@@ -23,11 +23,12 @@ padding:20px;
 display:flex;
 flex-direction:column;
 border-right:1px solid #1e293b;
+overflow-y:auto;
 }
 
 .logo img{
 height:36px;
-margin-bottom:25px;
+margin-bottom:20px;
 }
 
 /* NEW CHAT BUTTON */
@@ -48,14 +49,12 @@ transition:0.2s;
 background:#0ea5e9;
 }
 
-/* CHAT LIST */
-
-.chat-list{
-flex:1;
-overflow-y:auto;
-}
+/* CHAT ITEMS */
 
 .chat-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
 padding:10px;
 border-radius:6px;
 cursor:pointer;
@@ -75,7 +74,20 @@ background:#334155;
 color:white;
 }
 
-/* MAIN AREA */
+/* DELETE BUTTON */
+
+.delete-chat{
+opacity:0.4;
+font-size:14px;
+cursor:pointer;
+}
+
+.delete-chat:hover{
+opacity:1;
+color:#ef4444;
+}
+
+/* MAIN CHAT AREA */
 
 .main{
 flex:1;
@@ -84,7 +96,7 @@ flex-direction:column;
 height:100vh;
 }
 
-/* TOP BAR */
+/* HEADER */
 
 .topbar{
 padding:15px 20px;
@@ -93,7 +105,7 @@ border-bottom:1px solid #1e293b;
 font-weight:600;
 }
 
-/* CHAT AREA */
+/* MESSAGES AREA */
 
 .messages{
 flex:1;
@@ -113,6 +125,7 @@ border-radius:12px;
 max-width:70%;
 line-height:1.4;
 font-size:15px;
+word-wrap:break-word;
 }
 
 /* USER MESSAGE */
