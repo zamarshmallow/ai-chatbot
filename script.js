@@ -3,55 +3,66 @@ const messagesDiv = document.getElementById("messages")
 
 async function sendMessage(){
 
-if(!input) return
+if(const input = document.getElementById("messageInput")
+const sendBtn = document.getElementById("sendBtn")
+const messages = document.getElementById("messages")
+
+async function sendMessage(){
 
 const text = input.value.trim()
 
 if(!text){
-console.log("No message typed")
+console.log("No text detected")
 return
 }
 
-messagesDiv.innerHTML += `<div class="message user">${text}</div>`
+// show user message
+messages.innerHTML += `<div class="message user">${text}</div>`
 
-input.value=""
+input.value = ""
 
 const thinking = document.createElement("div")
-thinking.className="message bot"
-thinking.innerText="Thinking..."
-messagesDiv.appendChild(thinking)
+thinking.className = "message bot"
+thinking.innerText = "Thinking..."
+messages.appendChild(thinking)
 
-messagesDiv.scrollTop = messagesDiv.scrollHeight
+messages.scrollTop = messages.scrollHeight
 
 try{
 
-const res = await fetch("/api/chat",{
+const response = await fetch("/api/chat",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-message:text
+message: text
 })
 })
 
-const data = await res.json()
+const data = await response.json()
 
 thinking.innerText = data.reply || "No response"
 
 }catch(err){
 
-thinking.innerText="Server error"
+thinking.innerText = "Server error"
 
 }
 
 }
 
-input.addEventListener("keydown",function(e){
+// click button
+sendBtn.addEventListener("click", sendMessage)
 
-if(e.key==="Enter" && !e.shiftKey){
+// enter key
+input.addEventListener("keydown", function(e){
+
+if(e.key === "Enter" && !e.shiftKey){
+
 e.preventDefault()
 sendMessage()
+
 }
 
 })
