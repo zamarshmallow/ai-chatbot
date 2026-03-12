@@ -6,17 +6,19 @@ const chatList = document.getElementById("chatList")
 let chats = JSON.parse(localStorage.getItem("chats")) || {}
 let currentChat = null
 
+
 function saveChats(){
 localStorage.setItem("chats", JSON.stringify(chats))
 }
+
 
 function newChat(){
 
 const id = Date.now().toString()
 
 chats[id] = {
-title: "New Chat",
-messages: []
+title:"New Chat",
+messages:[]
 }
 
 currentChat = id
@@ -26,6 +28,7 @@ renderChats()
 renderMessages()
 
 }
+
 
 async function sendMessage(){
 
@@ -37,18 +40,18 @@ if(!currentChat) newChat()
 
 messages.innerHTML += `<div class="message user">${text}</div>`
 
-input.value = ""
+input.value=""
 
 const thinking = document.createElement("div")
-thinking.className = "message bot"
-thinking.innerText = "Thinking..."
+thinking.className="message bot"
+thinking.innerText="Thinking..."
 messages.appendChild(thinking)
 
 messages.scrollTop = messages.scrollHeight
 
 chats[currentChat].messages.push({
-role: "user",
-content: text
+role:"user",
+content:text
 })
 
 try{
@@ -79,20 +82,21 @@ renderChats()
 
 }catch(err){
 
-thinking.innerText = "Server error"
+thinking.innerText="Server error"
 
 }
 
 }
+
 
 function renderChats(){
 
-chatList.innerHTML = ""
+chatList.innerHTML=""
 
 Object.keys(chats).forEach(id => {
 
 const item = document.createElement("div")
-item.className = "chat-item"
+item.className="chat-item"
 
 if(id === currentChat){
 item.classList.add("active")
@@ -116,7 +120,7 @@ e.stopPropagation()
 delete chats[id]
 saveChats()
 renderChats()
-messages.innerHTML = ""
+messages.innerHTML=""
 }
 
 item.appendChild(title)
@@ -128,13 +132,14 @@ chatList.appendChild(item)
 
 }
 
+
 function renderMessages(){
 
-messages.innerHTML = ""
+messages.innerHTML=""
 
 if(!currentChat) return
 
-chats[currentChat].messages.forEach(m => {
+chats[currentChat].messages.forEach(m=>{
 
 messages.innerHTML += `
 <div class="message ${m.role}">
@@ -148,12 +153,17 @@ messages.scrollTop = messages.scrollHeight
 
 }
 
-input.addEventListener("input", ()=>{
+
+/* AUTO GROW INPUT */
+
+input.addEventListener("input",()=>{
 input.style.height="auto"
 input.style.height=input.scrollHeight+"px"
 })
 
+
 sendBtn.addEventListener("click", sendMessage)
+
 
 input.addEventListener("keydown", function(e){
 
@@ -163,5 +173,6 @@ sendMessage()
 }
 
 })
+
 
 renderChats()
