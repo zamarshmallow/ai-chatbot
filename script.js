@@ -13,7 +13,7 @@ messages.innerHTML += `<div class="message user">${text}</div>`
 input.value=""
 
 const thinking = document.createElement("div")
-thinking.className="message assistant"
+thinking.className="message bot"
 thinking.innerText="Thinking..."
 messages.appendChild(thinking)
 
@@ -26,7 +26,9 @@ method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({ message:text })
+body:JSON.stringify({
+message:text
+})
 })
 
 const data = await response.json()
@@ -35,7 +37,6 @@ thinking.innerText = data.reply || "No response"
 
 }catch(err){
 
-console.error(err)
 thinking.innerText="Server error"
 
 }
@@ -52,3 +53,7 @@ sendMessage()
 }
 
 })
+
+function newChat(){
+messages.innerHTML=""
+}
