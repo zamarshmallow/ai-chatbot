@@ -7,9 +7,13 @@ const chatList = document.querySelector(".sidebar")
 let chats = JSON.parse(localStorage.getItem("chats")) || {}
 let currentChat = null
 
+
+/* SAVE CHATS */
+
 function saveChats(){
 localStorage.setItem("chats", JSON.stringify(chats))
 }
+
 
 /* CREATE NEW CHAT */
 
@@ -18,8 +22,8 @@ function newChat(){
 const id = Date.now().toString()
 
 chats[id] = {
-title:"New Chat",
-messages:[]
+title: "New Chat",
+messages: []
 }
 
 currentChat = id
@@ -30,6 +34,26 @@ renderChats()
 renderMessages()
 
 }
+
+
+/* DELETE CHAT */
+
+function deleteChat(id){
+
+if(!confirm("Delete this chat?")) return
+
+delete chats[id]
+
+if(currentChat === id){
+currentChat = null
+messages.innerHTML = ""
+}
+
+saveChats()
+renderChats()
+
+}
+
 
 /* SEND MESSAGE */
 
@@ -43,18 +67,18 @@ if(!currentChat) newChat()
 
 messages.innerHTML += `<div class="message user">${text}</div>`
 
-input.value=""
+input.value = ""
 
 const thinking = document.createElement("div")
-thinking.className="message bot"
-thinking.innerText="Thinking..."
+thinking.className = "message bot"
+thinking.innerText = "Thinking..."
 messages.appendChild(thinking)
 
 messages.scrollTop = messages.scrollHeight
 
 chats[currentChat].messages.push({
-role:"user",
-content:text
+role: "user",
+content: text
 })
 
 try{
@@ -64,16 +88,16 @@ method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({message:text})
+body: JSON.stringify({ message: text })
 })
 
 const data = await response.json()
 
-thinking.innerText = data.reply
+thinking.innerText = data.reply || "No response"
 
 chats[currentChat].messages.push({
-role:"bot",
-content:data.reply
+role: "bot",
+content: data.reply
 })
 
 if(chats[currentChat].messages.length === 1){
@@ -85,11 +109,12 @@ renderChats()
 
 }catch(err){
 
-thinking.innerText="Server error"
+thinking.innerText = "Server error"
 
 }
 
 }
+
 
 /* RENDER CHAT LIST */
 
@@ -100,15 +125,27 @@ document.querySelectorAll(".chat-item").forEach(el => el.remove())
 Object.keys(chats).forEach(id => {
 
 const item = document.createElement("div")
-
 item.className = "chat-item"
 
-item.innerText = chats[id].title
+const title = document.createElement("span")
+title.innerText = chats[id].title
 
-item.onclick = () => {
+title.onclick = () => {
 currentChat = id
 renderMessages()
 }
+
+const deleteBtn = document.createElement("span")
+deleteBtn.innerText = "🗑"
+deleteBtn.className = "delete-chat"
+
+deleteBtn.onclick = (e) => {
+e.stopPropagation()
+deleteChat(id)
+}
+
+item.appendChild(title)
+item.appendChild(deleteBtn)
 
 chatList.appendChild(item)
 
@@ -116,11 +153,12 @@ chatList.appendChild(item)
 
 }
 
+
 /* RENDER MESSAGES */
 
 function renderMessages(){
 
-messages.innerHTML=""
+messages.innerHTML = ""
 
 if(!currentChat) return
 
@@ -138,17 +176,24 @@ messages.scrollTop = messages.scrollHeight
 
 }
 
-/* EVENTS */
+
+/* BUTTON EVENT */
 
 sendBtn.addEventListener("click", sendMessage)
 
+
+/* ENTER KEY */
+
 input.addEventListener("keydown", function(e){
 
-if(e.key==="Enter" && !e.shiftKey){
+if(e.key === "Enter" && !e.shiftKey){
 e.preventDefault()
 sendMessage()
 }
 
 })
+
+
+/* INITIAL LOAD */
 
 renderChats()
