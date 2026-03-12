@@ -6,19 +6,15 @@ async function sendMessage(){
 
 const text = input.value.trim()
 
-if(!text){
-console.log("No text detected")
-return
-}
+if(!text) return
 
-// show user message
 messages.innerHTML += `<div class="message user">${text}</div>`
 
-input.value = ""
+input.value=""
 
 const thinking = document.createElement("div")
-thinking.className = "message bot"
-thinking.innerText = "Thinking..."
+thinking.className="message assistant"
+thinking.innerText="Thinking..."
 messages.appendChild(thinking)
 
 messages.scrollTop = messages.scrollHeight
@@ -30,9 +26,7 @@ method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({
-message: text
-})
+body:JSON.stringify({ message:text })
 })
 
 const data = await response.json()
@@ -41,23 +35,20 @@ thinking.innerText = data.reply || "No response"
 
 }catch(err){
 
-thinking.innerText = "Server error"
+console.error(err)
+thinking.innerText="Server error"
 
 }
 
 }
 
-// click button
 sendBtn.addEventListener("click", sendMessage)
 
-// enter key
 input.addEventListener("keydown", function(e){
 
-if(e.key === "Enter" && !e.shiftKey){
-
+if(e.key==="Enter" && !e.shiftKey){
 e.preventDefault()
 sendMessage()
-
 }
 
 })
