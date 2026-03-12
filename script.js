@@ -3,9 +3,14 @@ const messagesDiv = document.getElementById("messages")
 
 async function sendMessage(){
 
+if(!input) return
+
 const text = input.value.trim()
 
-if(!text) return
+if(!text){
+console.log("No message typed")
+return
+}
 
 messagesDiv.innerHTML += `<div class="message user">${text}</div>`
 
