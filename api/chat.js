@@ -7,20 +7,14 @@ if (req.method !== "POST") {
 try {
 
 const { message } = req.body
-
-// SAFETY CHECK
-const userMessage =
-  typeof message === "string" ? message.trim() : ""
+const userMessage = message?.trim()
 
 if (!userMessage) {
   return res.status(400).json({ reply: "Empty message" })
 }
 
-/* =========================
-   MAIN AI RESPONSE
-========================= */
-
-const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+// AI RESPONSE
+const aiRes = await fetch("https://api.openai.com/v1/chat/completions", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -29,30 +23,22 @@ const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
   body: JSON.stringify({
     model: "gpt-4o-mini",
     messages: [
-      {
-        role: "system",
-        content: "You are a helpful AI assistant."
-      },
-      {
-        role: "user",
-        content: userMessage
-      }
-    ],
-    temperature: 0.7
+      { role: "system", content: "You are a helpful AI assistant." },
+      { role: "user", content: userMessage }
+    ]
   })
 })
 
-const aiData = await aiResponse.json()
+const aiData = await aiRes.json()
 
-const aiReply =
-  aiData?.choices?.[0]?.message?.content || "No response"
+if(!aiData.choices){
+return res.status(500).json({ reply:"OpenAI error", title:"New Chat" })
+}
 
+const reply = aiData.choices[0].message.content
 
-/* =========================
-   CHAT TITLE GENERATION
-========================= */
-
-const titleResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+// TITLE
+const titleRes = await fetch("https://api.openai.com/v1/chat/completions", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -61,42 +47,22 @@ const titleResponse = await fetch("https://api.openai.com/v1/chat/completions", 
   body: JSON.stringify({
     model: "gpt-4o-mini",
     messages: [
-      {
-        role: "system",
-        content: "Generate a short chat title (max 4 words). No quotes."
-      },
-      {
-        role: "user",
-        content: userMessage
-      }
-    ],
-    temperature: 0.5
+      { role: "system", content: "Generate a short chat title (max 4 words)." },
+      { role: "user", content: userMessage }
+    ]
   })
 })
 
-const titleData = await titleResponse.json()
+const titleData = await titleRes.json()
 
-let chatTitle =
-  titleData?.choices?.[0]?.message?.content || "New Chat"
+const title =
+titleData?.choices?.[0]?.message?.content?.replace(/["']/g,"").trim() || "New Chat"
 
-// CLEAN TITLE
-chatTitle = chatTitle.replace(/["']/g, "").trim()
+return res.status(200).json({ reply, title })
 
+} catch (err) {
 
-/* =========================
-   RESPONSE BACK TO FRONTEND
-========================= */
-
-return res.status(200).json({
-  reply: aiReply,
-  title: chatTitle
-})
-
-} catch (error) {
-
-return res.status(500).json({
-  reply: "Server error"
-})
+return res.status(500).json({ reply:"Server error", title:"New Chat" })
 
 }
 
