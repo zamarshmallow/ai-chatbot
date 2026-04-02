@@ -1,57 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>20AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20AI</title>
 
-  <!-- CSS (IMPORTANT: correct path) -->
-  <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 </head>
 
 <body>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
+<div class="sidebar">
+  <button onclick="newChat()">+ New Chat</button>
+  <div id="chatList"></div>
+</div>
 
-    <div class="logo">
-      <img src="./logo.png" alt="20AI Logo">
-    </div>
+<div class="main">
 
-    <button class="new-chat" onclick="newChat()">New Chat</button>
-
-    <div id="chatList"></div>
-
+  <div class="topbar">
+    20AI
+    <button onclick="logout()">Logout</button>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
+  <div id="messages" class="messages"></div>
 
-    <div class="topbar">
-      20AI Assistant
-    </div>
-
-    <div class="messages" id="messages"></div>
-
-    <div class="input-area">
-
-      <textarea 
-        id="messageInput" 
-        placeholder="Ask anything..."
-        rows="1"
-      ></textarea>
-
-      <button class="send" id="sendBtn">Send</button>
-
-    </div>
-
+  <div class="input-area">
+    <textarea id="messageInput" placeholder="Type a message..."></textarea>
+    <button id="sendBtn">Send</button>
   </div>
 
-  <!-- JS (IMPORTANT: at bottom) -->
-  <script src="./script.js"></script>
+</div>
+
+<!-- IMPORTANT: defer -->
+<script defer src="./script.js"></script>
 
 </body>
-
 </html>
